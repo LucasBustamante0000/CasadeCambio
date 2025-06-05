@@ -11,7 +11,7 @@ TAXAS = {
 app_ui = ui.page_fluid(
     ui.h2("Conversor de Moedas"),
 
-    ui.input_numeric("valor", "Valor a converter:", 0.0),
+    ui.input_numeric("valor", "Valor a converter:", None),
     ui.input_select("origem", "Moeda de origem:", list(TAXAS.keys()), selected="BRL"),
     ui.input_select("destino", "Moeda de destino:", list(TAXAS.keys()), selected="USD"),
 
@@ -28,13 +28,12 @@ def server(input, output, session):
         origem = input.origem()
         destino = input.destino()
 
-        if valor <= 0:
-            return "Informe um valor maior que zero para converter."
+        if valor is None or valor <= 0:
+            return "Por favor, insira um valor válido maior que zero."
 
         if origem == destino:
             return f"Moeda de origem e destino são iguais. Resultado: {valor:.2f} {destino}"
 
-        # Conversão intermediária para BRL
         valor_em_brl = valor / TAXAS[origem]
         valor_convertido = valor_em_brl * TAXAS[destino]
 
