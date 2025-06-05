@@ -1,42 +1,47 @@
 from shiny import App, reactive, render, ui
 
-TAXAS = {
-    "BRL": 1.0,        # Real brasileiro
+# Taxas de conversão em relação ao Real Brasileiro
+RATES = {
+    "BRL": 1.0,        # Real Brasileiro
     "USD": 0.20,       # Dólar
     "EUR": 0.18,       # Euro
     "JPY": 29.5,       # Iene
-    "BTC": 0.000003    # Bitcoin 
+    "BTC": 0.000003    # Bitcoin
 }
 
 app_ui = ui.page_fluid(
-    ui.h2("Conversor de Moedas"),
+    ui.h2("Currency Converter"),
 
-    ui.input_numeric("valor", "Valor a converter:", None),
-    ui.input_select("origem", "Moeda de origem:", list(TAXAS.keys()), selected="BRL"),
-    ui.input_select("destino", "Moeda de destino:", list(TAXAS.keys()), selected="USD"),
+    # Entrada de valor numérico
+    ui.input_numeric("amount", "Amount to convert:", None),
+    ui.input_select("from_currency", "From currency:", list(RATES.keys()), selected="BRL"),
+    ui.input_select("to_currency", "To currency:", list(RATES.keys()), selected="USD"),
 
     ui.hr(),
-    ui.output_text("resultado")
+    ui.output_text("result")
 )
 
 def server(input, output, session):
 
     @output
     @render.text
-    def resultado():
-        valor = input.valor()
-        origem = input.origem()
-        destino = input.destino()
+    def result():
+        amount = input.amount()
+        from_currency = input.from_currency()
+        to_currency = input.to_currency()
 
-        if valor is None or valor <= 0:
-            return "Por favor, insira um valor válido maior que zero."
+        # Verifica se o valor é válido
+        if amount is None or amount <= 0:
+            return "Please enter a valid amount greater than zero."
 
-        if origem == destino:
-            return f"Moeda de origem e destino são iguais. Resultado: {valor:.2f} {destino}"
+        # Verifica se as moedas são iguais
+        if from_currency == to_currency:
+            return f"The source and target currencies are the same. Result: {amount:.2f} {to_currency}"
 
-        valor_em_brl = valor / TAXAS[origem]
-        valor_convertido = valor_em_brl * TAXAS[destino]
+        # Conversão intermediária para BRL e depois para moeda de destino
+        amount_in_brl = amount / RATES[from_currency]
+        converted_amount = amount_in_brl * RATES[to_currency]
 
-        return f"{valor:.2f} {origem} = {valor_convertido:.2f} {destino}"
+        return f"{amount:.2f} {from_currency} = {converted_amount:.2f} {to_currency}"
 
 app = App(app_ui, server)
