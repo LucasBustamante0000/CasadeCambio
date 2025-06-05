@@ -1,6 +1,5 @@
 from shiny import App, reactive, render, ui
 
-
 TAXAS = {
     "BRL": 1.0,        # Real brasileiro
     "USD": 0.20,       # Dólar
@@ -29,10 +28,13 @@ def server(input, output, session):
         origem = input.origem()
         destino = input.destino()
 
+        if valor <= 0:
+            return "Informe um valor maior que zero para converter."
+
         if origem == destino:
             return f"Moeda de origem e destino são iguais. Resultado: {valor:.2f} {destino}"
 
-        
+        # Conversão intermediária para BRL
         valor_em_brl = valor / TAXAS[origem]
         valor_convertido = valor_em_brl * TAXAS[destino]
 
